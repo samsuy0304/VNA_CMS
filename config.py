@@ -1,18 +1,17 @@
-import os
-from optparse import OptionParser
+
 import pandas as pd
-import skrf as rf
 from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
-from matplotlib import style
-import pickle as pl
-import csv
+
 
 cable_number = ""
 cable_length = ""
 cable_type = 0
 t1 = 0
 t2 = 0
+
+dt1 = 2.0
+dt2 = 5.0
 Pre_list = []
 
 y_plot_value=[]
@@ -22,16 +21,13 @@ subfiles = ['0','0','1',]
 
 
     
-# for i in range(1,len(Pre_list)+1):
-#     ff["ff{i}".format(i)]= f"Data/"+cable_number+f"/{Pre_list[i-1]}"
-#     filenames["filename{i}".format(i)]= f"{Pre_list[i-1]}"
-# print(filenames)
+
 
 def name(x):
     return x.strip(".vna").replace('Data/'+str(config.cable_number)+'/Plots/s2p/', "").strip("TP_")
 
 y_plot_value=[]
-def display_mean_impedance(ax, t1, t2, col):##https://www.tutorialfor.com/questions-285739.htm
+def display_mean_impedance(ax, t1, t2,dt1, dt2, col):##https://www.tutorialfor.com/questions-285739.htm
 
     lines = ax.get_lines()
 
@@ -56,11 +52,19 @@ def display_mean_impedance(ax, t1, t2, col):##https://www.tutorialfor.com/questi
     # get the mean value of Z for a given time difference
     Z_mean =  df.query('t >=@t1 & t<=@t2').agg({'Z': 'mean'})
     print('Mean impedance from', t1, 'ns and', t2, 'ns =', Z_mean.values, 'for', lines[0])
+    Z_mean_2 =  df.query('t >=@dt1 & t<=@dt2').agg({'Z': 'mean'})
+    print('Mean impedance from', dt1, 'ns and', dt2, 'ns =', Z_mean_2.values, 'for', lines[0])
     # plot the average line
     x_coor = [t1, t2]
     y_coor = [Z_mean, Z_mean]
     y_plot_value.append(int(Z_mean.values))
     ax.plot(x_coor, y_coor, color=col, linewidth=1, label='', linestyle='--')
+
+    x_coor2 = [dt1,dt2]
+    y_coor2 = [Z_mean_2, Z_mean_2]
+    y_plot_value.append(int(Z_mean_2.values))
+    ax.plot(x_coor2, y_coor2, color=col, linewidth=1, label='', linestyle='--')
+
 
 def set_axes(ax, title, ymin, ymax, xmin, xmax, nolim):
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))

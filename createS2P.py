@@ -1,4 +1,3 @@
-import config
 import os
 from optparse import OptionParser
 import pandas as pd
@@ -169,7 +168,7 @@ while Breaker == True:
         parser.remove_option('--directory')
 
         IDchecker += 1
-
+        plt.close()
         if IDchecker > len(config.Pre_list)-1:
             break
 
