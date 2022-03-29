@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 from optparse import OptionParser
 import pandas as pd
@@ -6,51 +7,49 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib import style
 
+
 # Functions
 def makeDir(dir_name):
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
 
 
-
-
 import config
 
-makeDir("Data/"+config.cable_number+"/Plots")
-makeDir("Data/"+config.cable_number+"/Plots/s2p")
+makeDir("Data/" + config.cable_number + "/Plots")
+makeDir("Data/" + config.cable_number + "/Plots/s2p")
 
 IDchecker = 0
 Breaker = True
 
-
-parser= OptionParser()
+parser = OptionParser()
 
 while Breaker == True:
 
-    Breaker = True
     FILE = config.Pre_list[IDchecker]
     print("Creating s2p files for ", FILE)
 
     parser.add_option('--basename', metavar='T', type='string', action='store',
-                      default='Data/'+str(config.cable_number)+'/'+FILE, #31, 15, 33 #calibration_test.vna
+                      default='Data/' + str(config.cable_number) + '/' + FILE,  # 31, 15, 33 #calibration_test.vna
                       dest='basename',
                       help='input text file')
 
     parser.add_option('--directory', metavar='T', type='string', action='store',
-                      default='Data/'+str(config.cable_number)+'/'+'Plots/',
+                      default='Data/' + str(config.cable_number) + '/' + 'Plots/',
                       dest='directory',
                       help='directory to store plots')
 
-    (options,args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
     # ==========end: options =============
     basename1 = options.basename
-    basename2 = basename1.replace('Data/'+str(config.cable_number)+'/', 'Data/'+str(config.cable_number)+'/'+'Plots/s2p/')
-    dir_in= options.directory
-    cable = basename1.replace('Data/'+str(config.cable_number)+'/', "")
+    basename2 = basename1.replace('Data/' + str(config.cable_number) + '/',
+                                  'Data/' + str(config.cable_number) + '/' + 'Plots/s2p/')
+    dir_in = options.directory
+    cable = basename1.replace('Data/' + str(config.cable_number) + '/', "")
 
-
-    infile = pd.read_csv(basename1, names=['pt','f','s11R','s11I','s12R','s12I','s13R','s13I','s14R','s14I'], delim_whitespace=True, skiprows=1)
+    infile = pd.read_csv(basename1, names=['pt', 'f', 's11R', 's11I', 's12R', 's12I', 's13R', 's13I', 's14R', 's14I'],
+                         delim_whitespace=True, skiprows=1)
     infile.dropna(how='all')
 
     pd.set_option("display.max_rows", 5)
@@ -65,21 +64,23 @@ while Breaker == True:
                     f.close()
             except:
                 pass
-            filename = basename2.replace(".txt","")+ '_' + str(fileindex)+'.s2p'
+            filename = basename2.replace(".txt", "") + '_' + str(fileindex) + '.s2p'
             fileindex += 1
-            f = open(filename,'w')
+            f = open(filename, 'w')
             f.write('# GHZ	S	RI	R	50.0\n')
 
             try:
-                #print (row['f'][1:-1], row['s11R'][1:-1], row['s11I'][1:-1], row['s12R'][1:-1] )
-                f.write(f"!freq       Rel{row['f'][1:-1]}       Im{row['f'][1:-1]}      Rel{row['s11R'][1:-1]}       Im{row['s11R'][1:-1]}        Rel{row['s11I'][1:-1]}        Im{row['s11I'][1:-1]}         Rel{row['s12R'][1:-1]}      Im{row['s12R'][1:-1]}\n")
+                # print (row['f'][1:-1], row['s11R'][1:-1], row['s11I'][1:-1], row['s12R'][1:-1] )
+                f.write(
+                    f"!freq       Rel{row['f'][1:-1]}       Im{row['f'][1:-1]}      Rel{row['s11R'][1:-1]}       Im{row['s11R'][1:-1]}        Rel{row['s11I'][1:-1]}        Im{row['s11I'][1:-1]}         Rel{row['s12R'][1:-1]}      Im{row['s12R'][1:-1]}\n")
             except:
                 if row['f'][1:-1] == 'SDD':
-                     f.write(f"!freq\tRelS11\tImS11\n")
+                    f.write(f"!freq\tRelS11\tImS11\n")
             prevF = 0
         try:
-            if float(row['s11R']) == float(row['s11R']) and float(row['f'])>prevF:
-                f.write(f"{float(row['f']):.3f}\t{float(row['s11R'])}\t{float(row['s11I'])}\t{float(row['s12R'])}\t{float(row['s12I'])}\t{float(row['s13R'])}\t{float(row['s13I'])}\t{float(row['s14R'])}\t{float(row['s14I'])}\n")
+            if float(row['s11R']) == float(row['s11R']) and float(row['f']) > prevF:
+                f.write(
+                    f"{float(row['f']):.3f}\t{float(row['s11R'])}\t{float(row['s11I'])}\t{float(row['s12R'])}\t{float(row['s12I'])}\t{float(row['s13R'])}\t{float(row['s13I'])}\t{float(row['s14R'])}\t{float(row['s14I'])}\n")
                 prevF = float(row['f'])
         except:
             pass
@@ -115,7 +116,7 @@ while Breaker == True:
         example_dc.s11.plot_z_time_step(attribute='z_time_step', pad=2000, window='hamming', z0=50, label='TD11')
         example_dc.s21.plot_z_time_step(attribute='z_time_step', pad=2000, window='hamming', z0=50, label='TD12')
         plt.ylim((0, 200))
-        plt.xlim((0, 30))
+        plt.xlim((0, 25))
         plt.tight_layout()
         # ax1.legend()
         fig0.savefig(dir_in + cable.replace(".vna.txt", "") + '_freq_time_Z_rf.png')
@@ -169,9 +170,7 @@ while Breaker == True:
 
         IDchecker += 1
         plt.close()
-        if IDchecker > len(config.Pre_list)-1:
+        if IDchecker > len(config.Pre_list) - 1:
             break
 
 print("Plots can be now found in the Plots folder of the Cable\n")
-
-
